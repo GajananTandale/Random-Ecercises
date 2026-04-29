@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GET vs POST Demo</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .form-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            margin: 20px auto; /* center + spacing */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .result {
+            margin-top: 15px;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>GET vs POST Method in PHP</h1>
+
+<!-- GET FORM -->
+<div class="form-box">
+    <h2>GET Method Form</h2>
+    <form method="GET" action="">
+        <input type="text" name="get_name" placeholder="Enter your name" required>
+        <input type="email" name="get_email" placeholder="Enter your email" required>
+        <button type="submit">Submit via GET</button>
+    </form>
+
+    <?php
+    if(isset($_GET['get_name']) && isset($_GET['get_email'])) {
+        echo "<div class='result'>";
+        echo "<strong>GET Output:</strong><br>";
+        echo "Name: " . htmlspecialchars($_GET['get_name']) . "<br>";
+        echo "Email: " . htmlspecialchars($_GET['get_email']);
+        echo "</div>";
+    }
+    ?>
+</div>
+
+<!-- POST FORM (NOW BELOW GET) -->
+<div class="form-box">
+    <h2>POST Method Form</h2>
+    <form method="POST" action="">
+        <input type="text" name="post_name" placeholder="Enter your name" required>
+        <input type="email" name="post_email" placeholder="Enter your email" required>
+        <button type="submit">Submit via POST</button>
+    </form>
+
+    <?php
+    if(isset($_POST['post_name']) && isset($_POST['post_email'])) {
+        echo "<div class='result'>";
+        echo "<strong>POST Output:</strong><br>";
+        echo "Name: " . htmlspecialchars($_POST['post_name']) . "<br>";
+        echo "Email: " . htmlspecialchars($_POST['post_email']);
+        echo "</div>";
+    }
+    ?>
+</div>
+
+</body>
+</html>

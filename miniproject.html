@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expense Splitter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h2 {
+      color: #333;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #f9f9f9;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+    }
+    .settle-btn {
+      background-color: #2196F3;
+    }
+    .settle-btn:hover {
+      background-color: #0b7dda;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Smart Expense Splitter</h2>
+
+<div class="container">
+  <h3>Add Users</h3>
+  <input id="name" placeholder="Enter name">
+  <button onclick="addUser()">Add User</button>
+</div>
+
+<div class="container">
+  <h3>Add Expense</h3>
+  <select id="payer"></select>
+  <input id="amount" type="number" placeholder="Amount">
+  <input id="description" placeholder="Description (optional)">
+  <button onclick="addExpense()">Add Expense</button>
+</div>
+
+<div class="container">
+  <h3>Expenses</h3>
+  <ul id="expenses"></ul>
+</div>
+
+<div class="container">
+  <h3>Balances</h3>
+  <ul id="balances"></ul>
+  <button class="settle-btn" onclick="settleDebts()">Settle Up</button>
+</div>
+
+<script>
+let users = [];
+let balances = {};
+let expenses = [];
+
+function addUser() {
+    let name = document.getElementById("name").value.trim();
+    if (name && !users.includes(name)) {
+        users.push(name);
+        balances[name] = 0;
+
+        let option = document.createElement("option");
+        option.value = name;
+        option.text = name;
+        document.getElementById("payer").appendChild(option);
+
+        document.getElementById("name").value = "";
+        updateBalances();
+    }
+}
+
+function addExpense() {
+    let payer = document.getElementById("payer").value;
+    let amount = parseFloat(document.getElementById("amount").value);
+    let description = document.getElementById("description").value.trim() || "Expense";
+
+    if (payer && amount > 0 && users.length > 0) {
+        let share = amount / users.length;
+
+        users.forEach(user => {
+            if (user === payer) {
+                balances[user] += amount - share;
+            } else {
+                balances[user] -= share;
+            }
+        });
+
+        expenses.push({ payer, amount, description });
+        updateExpenses();
+        updateBalances();
+
+        document.getElementById("amount").value = "";
+        document.getElementById("description").value = "";
+    }
+}
+
+function updateExpenses() {
+    let list = document.getElementById("expenses");
+    list.innerHTML = "";
+
+    expenses.forEach((exp, index) => {
+        let li = document.createElement("li");
+        li.className = "expense-item";
+        li.innerHTML = `<span>${exp.description} - Paid by ${exp.payer}: ₹${exp.amount.toFixed(2)}</span>`;
+        list.appendChild(li);
+    });
+}
+
+function updateBalances() {
+    let list = document.getElementById("balances");
+    list.innerHTML = "";
+
+    for (let user in balances) {
+        let li = document.createElement("li");
+        let balance = balances[user];
+        let color = balance >= 0 ? "green" : "red";
+        li.innerHTML = `<span style="color: ${color}">${user}: ₹${balance.toFixed(2)}</span>`;
+        list.appendChild(li);
+    }
+}
+
+function settleDebts() {
+    let debtors = [];
+    let creditors = [];
+
+    // Separate users
+    for (let user in balances) {
+        let amount = balances[user];
+
+        if (amount < -0.01) {
+            debtors.push({ name: user, amount: amount });
+        } else if (amount > 0.01) {
+            creditors.push({ name: user, amount: amount });
+        }
+    }
+
+    // Sort
+    debtors.sort((a, b) => a.amount - b.amount); // most negative first
+    creditors.sort((a, b) => b.amount - a.amount); // most positive first
+
+    let transactions = [];
+
+    let i = 0, j = 0;
+
+    while (i < debtors.length && j < creditors.length) {
+        let debtor = debtors[i];
+        let creditor = creditors[j];
+
+        let settleAmount = Math.min(-debtor.amount, creditor.amount);
+
+        transactions.push(
+            `${debtor.name} pays ${creditor.name} ₹${settleAmount.toFixed(2)}`
+        );
+
+        debtor.amount += settleAmount;
+        creditor.amount -= settleAmount;
+
+        if (Math.abs(debtor.amount) < 0.01) i++;
+        if (Math.abs(creditor.amount) < 0.01) j++;
+    }
+
+    displaySettlements(transactions);
+}
+
+function displaySettlements(transactions) {
+    let list = document.getElementById("balances");
+    list.innerHTML = "<h3>Final Settlements</h3>";
+
+    if (transactions.length === 0) {
+        list.innerHTML += "<li>No settlements needed!</li>";
+    } else {
+        transactions.forEach(t => {
+            let li = document.createElement("li");
+            li.textContent = t;
+            list.appendChild(li);
+        });
+    }
+}
+</script>
+
+</body>
+</html>
