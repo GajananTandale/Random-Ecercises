@@ -1,0 +1,23 @@
+
+def bbsort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+        return arr
+
+    print(bbsort([64, 34, 25, 12, 22, 11, 90]))
+
+
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        min_idx = i
+        for j in range(i+1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+    return arr
+
+print(selection_sort([464, 343, 225, 12, 212, 11, 90]))
